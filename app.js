@@ -9,6 +9,7 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const { allowedNodeEnvironmentFlags } = require("process");
 
 
 // Write code to use inquirer to gather information about the development team members,
@@ -24,27 +25,70 @@ function newEmployee() {
     inquirer.prompt([
         {
             type: "list",
-            name: "Choose",
-            message: "Chose Employees Role",
+            name: "role",
+            message: "Choose Employees Role",
             choices: ["Engineer", "Intern", "Manager"]
         },
         {
             type: "input",
-            name: "Name",
+            name: "name",
             message: "Please enter employees name"
         },
         {
             type: "input",
-            name: "ID",
+            name: "id",
             message: "Please enter employees ID"
         },
         {
             type: "input",
-            name: "Email",
+            name: "email",
             message: "Please enter employees email"
         }
     ])
+    .then(function (answer) {
+        if(answer.role === "Engineer") {
+            inquirer.prompt([
+                {
+                    type: "input",
+                    name: "github",
+                    message: "Please enter employee's GitHub Username",
+                }
+            ])
+            .then(function(res) {
+                const engineer = new Engineer(answer.name, answer.id, answer.email, res.github);
+                employees.push(engineer);
+            })
+        }
+        else if(answer.role === "Intern") {
+            inquirer.prompt([
+                {
+                    type: "input",
+                    name: "school",
+                    message: "Please enter employee's school",
+                }
+            ])
+            .then(function(res) {
+                const intern = new Intern(answer.name, answer.id, answer.email, res.school);
+                employees.push(intern);
+            })
+        }
+        else if(answer.role === "Manager") {
+            inquirer.prompt([
+                {
+                    type: "input",
+                    name: "officeNumber",
+                    message: "Please enter employee's office number",
+                }
+            ])
+            .then(function(res) {
+                const manager = new Manager(answer.name, answer.id, answer.email, res.officeNumber);
+                employees.push(manager);
+            })
+        }
+    })
 }
+
+newEmployee();
 
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
