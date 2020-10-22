@@ -21,7 +21,7 @@ const employees = [];
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
 
-function newEmployee() {
+function addEmployee() {
     inquirer.prompt([
         {
             type: "list",
@@ -45,50 +45,76 @@ function newEmployee() {
             message: "Please enter employees email"
         }
     ])
-    .then(function (answer) {
-        if(answer.role === "Engineer") {
-            inquirer.prompt([
-                {
-                    type: "input",
-                    name: "github",
-                    message: "Please enter employee's GitHub Username",
-                }
-            ])
-            .then(function(res) {
-                const engineer = new Engineer(answer.name, answer.id, answer.email, res.github);
-                employees.push(engineer);
-            })
-        }
-        else if(answer.role === "Intern") {
-            inquirer.prompt([
-                {
-                    type: "input",
-                    name: "school",
-                    message: "Please enter employee's school",
-                }
-            ])
-            .then(function(res) {
-                const intern = new Intern(answer.name, answer.id, answer.email, res.school);
-                employees.push(intern);
-            })
-        }
-        else if(answer.role === "Manager") {
-            inquirer.prompt([
-                {
-                    type: "input",
-                    name: "officeNumber",
-                    message: "Please enter employee's office number",
-                }
-            ])
-            .then(function(res) {
-                const manager = new Manager(answer.name, answer.id, answer.email, res.officeNumber);
-                employees.push(manager);
-            })
-        }
-    })
-}
+        .then(function (answer) {
+            if (answer.role === "Engineer") {
+                inquirer.prompt([
+                    {
+                        type: "input",
+                        name: "github",
+                        message: "Please enter employee's GitHub Username",
+                    }
+                ])
+                    .then(function (res) {
+                        const engineer = new Engineer(answer.name, answer.id, answer.email, res.github);
+                        employees.push(engineer);
+                        writeEmployee();
 
-newEmployee();
+                    })
+            }
+            else if (answer.role === "Intern") {
+                inquirer.prompt([
+                    {
+                        type: "input",
+                        name: "school",
+                        message: "Please enter employee's school",
+                    }
+                ])
+                    .then(function (res) {
+                        const intern = new Intern(answer.name, answer.id, answer.email, res.school);
+                        employees.push(intern);
+                        writeEmployee();
+
+                    })
+            }
+            else if (answer.role === "Manager") {
+                inquirer.prompt([
+                    {
+                        type: "input",
+                        name: "officeNumber",
+                        message: "Please enter employee's office number",
+                    }
+                ])
+                    .then(function (res) {
+                        const manager = new Manager(answer.name, answer.id, answer.email, res.officeNumber);
+                        employees.push(manager);
+                        writeEmployee();
+                    })
+            }
+        })
+    function writeEmployee() {
+        inquirer.prompt([
+            {
+                type: "confirm",
+                name: "more",
+                message: "Would you like to add an additional employee?",
+                default: "true"
+            }
+        ]).then(function (res) {
+            if (res.more) {
+                addEmployee();
+            } else {
+                const employeeData = render(employees)
+                fs.writeFile(outputPath, employeeData, function (err) {
+                    if (err) throw err;
+                    console.log("New employee(s) added")
+                });
+            };
+        });
+    };
+};
+
+
+addEmployee();
 
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
